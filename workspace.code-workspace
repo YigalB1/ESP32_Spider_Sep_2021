@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "Spider_Control_ESP32",
+			"path": "Spider_Control_ESP32"
 		}
 	],
 	"settings": {}
