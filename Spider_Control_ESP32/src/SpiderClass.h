@@ -29,6 +29,8 @@ class Spider_Servo
 
         public:       
         void set_motor_to_angle (Adafruit_PWMServoDriver _servo_cntrl, Arduino_Servo_cmd_struct _servo_cmd) {
+              Serial.print("in set_motor_to_angle. servo num: ");
+              Serial.println(_servo_cmd.servo_num);
             // TBD: write values to servo
             _servo_cntrl.setPWM(_servo_cmd.servo_num, 0, _servo_cmd.servo_angle);
 
@@ -53,10 +55,15 @@ class Spider_Servo
         int led_green;
         
         public: void set_led_on(int _led_num) {
+            Serial.print("Led ON, leg: ");
+            Serial.println(_led_num);
+
             digitalWrite(_led_num, HIGH);
         }
 
         public: void set_led_off(int _led_num) {
+            Serial.print("Led OFF, leg: ");
+            Serial.println(_led_num);
             digitalWrite(_led_num, LOW);
         }
         

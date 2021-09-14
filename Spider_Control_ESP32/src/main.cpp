@@ -2,7 +2,7 @@
 #include "CommandClass.h"
 
 const int red_led_pin = 23;
-const int Yellow_led_pin = 19;
+const int yellow_led_pin = 19;
 const int green_led_pin = 18;
 
 Command current_command = Command();
@@ -11,10 +11,11 @@ spider_anatomy my_spider = spider_anatomy();
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // string completly recieved from USB
 
+void do_it(char _cmd_in[]);
 
 void setup() {
   pinMode(red_led_pin, OUTPUT);
-  pinMode(Yellow_led_pin, OUTPUT);
+  pinMode(yellow_led_pin, OUTPUT);
   pinMode(green_led_pin, OUTPUT);
 
   Serial.begin(9600);
@@ -23,32 +24,23 @@ void setup() {
 
   my_spider.servos_control.begin();
   my_spider.servos_control.setPWMFreq(60);
-  my_spider.leds.led_green = red_led_pin;
-  my_spider.leds.led_yellow = Yellow_led_pin;
-  my_spider.leds.led_red = green_led_pin;
+  my_spider.leds.led_red    = red_led_pin;
+  my_spider.leds.led_yellow = yellow_led_pin;
+  my_spider.leds.led_green  = green_led_pin;
 
   my_spider.leds.set_led_on(red_led_pin);
-  my_spider.leds.set_led_on(Yellow_led_pin);
+  my_spider.leds.set_led_on(yellow_led_pin);
   my_spider.leds.set_led_on(green_led_pin);
   delay(500);
   my_spider.leds.set_led_off(red_led_pin);
-  my_spider.leds.set_led_off(Yellow_led_pin);
+  my_spider.leds.set_led_off(yellow_led_pin);
   my_spider.leds.set_led_off(green_led_pin);
   delay(500);
   current_command.init();
 } // of SETUP()
 
 void loop() {
-  Serial.println("***** startinbg LOOP");
-  digitalWrite(red_led_pin, HIGH);  
-  digitalWrite(Yellow_led_pin, LOW);  
-  digitalWrite(green_led_pin, HIGH);  
-  delay(500);                  // wait for a second
-   digitalWrite(red_led_pin, LOW);  
-  digitalWrite(Yellow_led_pin, HIGH);  
-  digitalWrite(green_led_pin, LOW);  
-  delay(500);
-  Serial.print("** MAIN loop. stringComplete: ");
+  Serial.print("***** startinbg LOOP, stringComplete: ");
   Serial.println(stringComplete);
 
   if(stringComplete) {
@@ -60,48 +52,93 @@ void loop() {
     return;
   } // of IF
 
+  char cmd_line[CMD_LENGTH];
+  strcpy(cmd_line,"LED RED ON");
+  do_it(cmd_line);
+  delay(500);
 
-
-  Serial.println("In main LOOP: new_parser: LED RED ON sequence");
-  char second_cmd[CMD_LENGTH];
-  memset(second_cmd, '\0', sizeof(second_cmd)); // clean for next usage
-  strcpy(second_cmd, "LED RED ON");
-    
-  current_command.new_parser(second_cmd);
-  Serial.println("Back from new parser");
-  for (int i=0;i<current_command.num_of_params;i++) {
-    Serial.print(current_command.params[i]);
-    Serial.print(" ");
-  } // of FOR loop
-
+  strcpy(cmd_line,"LED RED OFF");
+  do_it(cmd_line);
   
-  Serial.println("");
+  strcpy(cmd_line,"LED YELLOW ON");
+  do_it(cmd_line);
+  delay(500);
+
+  strcpy(cmd_line,"LED YELLOW OFF");
+  do_it(cmd_line);
+  
+  strcpy(cmd_line,"LED GREEN ON");
+  do_it(cmd_line);
+  delay(500);
+  
+  strcpy(cmd_line,"LED GREEN OFF");
+  do_it(cmd_line);
+
+  Serial.println("-------  starting motors");
+  
+  String str;
+  char tmp_char[5];
+  int start,end,count;
+
+  start = 10;
+  end = 170;
+  count=10;
+  while(true) {  
+    for (int i=start; i<end ; i+=count) {
+      memset(tmp_char, '\0', sizeof(tmp_char)); // clean for next usage
+      memset(cmd_line, '\0', sizeof(cmd_line)); // clean for next usage
+      
+      str=String(i);
+      str.toCharArray(tmp_char,5);
+      Serial.print(" str is: ");
+      Serial.print(str);
+      Serial.print("  angle is: ");
+      Serial.println(tmp_char);
+
+      //strcpy(cmd_line,"MOTOR 0 0 20 1");
+      strcpy(cmd_line,"MOTOR 0 0 ");
+      strcat(cmd_line,tmp_char);
+      strcat(cmd_line," 1");
+      Serial.print("motor command line: ");
+      Serial.print(cmd_line);
+      do_it(cmd_line);
+      delay(1000);
+
+    } // of FOR loop
+    delay(2000);
+  } // of WHILE
+  
+
+  Serial.println("Motor 0 ");  
+// leg/motor/angle/delay
+  strcpy(cmd_line,"MOTOR 0 0 20 1");
+  do_it(cmd_line);
+  delay(1000);
+  
+  strcpy(cmd_line,"MOTOR 0 0 100 1");
+  do_it(cmd_line);
+  delay(1000);
+
+  Serial.println("Motor 1 ");  
+  strcpy(cmd_line,"MOTOR 0 1 45 1");
+  do_it(cmd_line);
+  delay(1000);
+
+  strcpy(cmd_line,"MOTOR 0 1 135 1");
+  do_it(cmd_line);
+  delay(1000);
+
+  Serial.println("Motor 2 ");  
+  strcpy(cmd_line,"MOTOR 0 2 170 1");
+  do_it(cmd_line);
+  delay(1000);
+
+  strcpy(cmd_line,"MOTOR 0 2 30 1");
+  do_it(cmd_line);
+  delay(1000);
 
   delay(200000);
-  return;
 
-
-  Serial.println("In main LOOP: strating LED sequence");
-  char first_cmd[] = "LED";
-  int ret_value = current_command.parse_it(first_cmd);
-  Serial.print("ret value: ");
-  Serial.println(ret_value);
-  if (ret_value==0) {
-    Serial.println("In main LOOP: parse_it OK, starting execute");
-    current_command.execute_command(my_spider);
-  }
-  else {
-    Serial.println("In main LOOP: error after parse_it");
-  }
-
-  Serial.println("In main LOOP: strating LED RED ON sequence");
-  //second_cmd[] = "LED RED ON";
-  ret_value = current_command.parse_it(second_cmd);
-  Serial.print("ret value: ");
-  Serial.println(ret_value);
-
-  delay(200000);
-  return;
   
 } // of LOOP()
 
@@ -126,3 +163,17 @@ void serialEvent() {
     }
   }
 } // of serial event
+
+
+void do_it(char _cmd_in[]) {
+  char loc_cmd[CMD_LENGTH]; 
+
+  memset(loc_cmd, '\0', sizeof(loc_cmd)); // clean for next usage
+  strcpy(loc_cmd, _cmd_in);  
+  current_command.new_parser(loc_cmd);
+  int cmd_ret = current_command.analyze();
+  if (cmd_ret==IS_COMMAND) {
+    // there is a valid command
+    current_command.execute_command(my_spider);
+  }
+}
