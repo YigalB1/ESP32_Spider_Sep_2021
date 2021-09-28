@@ -94,12 +94,14 @@ class Command {
             token = strtok(NULL, s);
         } // of WHILE
         Serial.println("");
+        /*
         for (int i=0;i<num_of_params;i++) {
             Serial.print("Param mum: ");
             Serial.println(i);
             Serial.print("Param value: ");
             Serial.println(cmd_params[i]);            
         }
+        */
         bool ret_val;
         if (num_of_params>0) 
             ret_val = true;
@@ -173,11 +175,11 @@ class Command {
                 execute_led_command(_spider);
                 break;
             case 1:
-                Serial.println(" *** in case,  MOTOR command detected");
+                //Serial.println(" *** in case,  MOTOR command detected");
                 execute_motor_command(_spider);
                 break;
             default:
-                Serial.println(" *** in case,  ERROR: default, unknown command");
+                //Serial.println(" *** in case,  ERROR: default, unknown command");
                 break;
         } // of CASE
 
@@ -188,13 +190,15 @@ class Command {
 
     void execute_motor_command(spider_anatomy __spider) {
         valid_parameters = true;
+        /*
         Serial.print("In execute_motor_command. params: "); 
         for (int i=0;i<NUM_OF_MOTOR_PARAMS;i++) {
             Serial.print(cmd_params[i]);
             Serial.print(" ");    
         }
         Serial.println();
-        
+        */
+
         if (num_of_params!=NUM_OF_MOTOR_PARAMS) {
             Serial.println("ERROR: 5 pamaters are required for MOTOR command (including the command)");                
             return;
@@ -207,33 +211,57 @@ class Command {
                 Serial.println(cmd_params[i]);
                 return;     
             } // of if
-        } // of for loop
-       
+        } // of for loop       
             
         int leg_num   = atoi(cmd_params[1]);
         int motor_num = atoi(cmd_params[2]);
         int angle_num = atoi(cmd_params[3]);
         int time_num  = atoi(cmd_params[4]);
 
-        Serial.print("leg/motor/angle/time: ");
-        Serial.print(leg_num);
-        Serial.print(" / ");
-        Serial.print(motor_num);
-        Serial.print(" / ");
-        Serial.print(angle_num);
-        Serial.print(" / ");
-        Serial.println(time_num);
+        
 
         servo_cmd.servo_num = leg_num*3 + motor_num;
         servo_cmd.servo_angle = angle_num;
         servo_cmd.wait_time = time_num;
         servo_cmd.valid = true;
 
-        Serial.print("servo num: ");
-        Serial.println(servo_cmd.servo_num);
-        
-        __spider.left_back_leg.motor[motor_num].set_motor_to_angle(__spider.servos_control,servo_cmd);
+        //Serial.print("leg/motor/angle/time: ");
+        //Serial.print(leg_num);
+        //Serial.print(" / ");
+        //Serial.print(motor_num);
+        //Serial.print(" / ");
+        //Serial.print(angle_num);
+        //Serial.print(" / ");
+        //Serial.print(time_num);
+        //Serial.print("    servo num: ");
+        //Serial.println(servo_cmd.servo_num);
 
+        
+        switch (leg_num) {
+            case 0:    // left front
+                Serial.println("leg left front");
+                __spider.left_front_leg.motor[motor_num].set_motor_to_angle(__spider.servos_control,servo_cmd);
+                break;
+            case 1:    // left back
+                Serial.println("leg left back");
+                __spider.left_back_leg.motor[motor_num].set_motor_to_angle(__spider.servos_control,servo_cmd);
+                break;
+            case 2:    // right front
+                Serial.println("leg right front");
+                __spider.right_front_leg.motor[motor_num].set_motor_to_angle(__spider.servos_control,servo_cmd);
+                break;
+            case 3:    // right back
+                Serial.println("leg right back");
+                __spider.right_back_leg.motor[motor_num].set_motor_to_angle(__spider.servos_control,servo_cmd);
+                break;
+            default:
+                Serial.println("im spider legs, ERROR: wrong leg");
+                return;
+        } // of switch
+
+        
+        //__spider.left_back_leg.motor[motor_num].set_motor_to_angle(__spider.servos_control,servo_cmd);
+        delay (500);
         //__spider.left_back.motor.
 
         // TBD: activate servo motor accordingly
@@ -243,15 +271,15 @@ class Command {
 
     void execute_led_command(spider_anatomy __spider) {
 
-        Serial.print("starting execute_led_command     ");
-        Serial.print("params[0]: "); 
-        Serial.print(cmd_params[0]);
-        Serial.print(" params[1]: ");
-        Serial.print(cmd_params[1]);
-        Serial.print(" params[2]: ");
-        Serial.print(cmd_params[2]);
-        Serial.print(" num_of_params: ");
-        Serial.println(num_of_params);
+        //Serial.print("starting execute_led_command     ");
+        //Serial.print("params[0]: "); 
+        //Serial.print(cmd_params[0]);
+        //Serial.print(" params[1]: ");
+        //Serial.print(cmd_params[1]);
+        //Serial.print(" params[2]: ");
+        //Serial.print(cmd_params[2]);
+        //Serial.print(" num_of_params: ");
+        //Serial.println(num_of_params);
 
             if (num_of_params!=3) { // the command itself is the first param
                 valid_parameters = false;
@@ -282,42 +310,42 @@ class Command {
 
             // start executing
             if (green_led && cmd_off) {
-                Serial.print("GREEN OFF. leg: ");
-                Serial.println(__spider.leds.led_green);
+                //Serial.print("GREEN OFF. leg: ");
+                //Serial.println(__spider.leds.led_green);
                 __spider.leds.set_led_off(__spider.leds.led_green);
                 return;
             }
 
             if (green_led && cmd_on) {
-                Serial.print("GREEN ON. leg: ");
-                Serial.println(__spider.leds.led_green);
+                //Serial.print("GREEN ON. leg: ");
+                //Serial.println(__spider.leds.led_green);
                 __spider.leds.set_led_on(__spider.leds.led_green);
                 return;
             }
 
             if (yellow_led && cmd_off) {
-                Serial.print("YELLOW OFF. leg: ");
-                Serial.println(__spider.leds.led_yellow);
+                //Serial.print("YELLOW OFF. leg: ");
+                //Serial.println(__spider.leds.led_yellow);
                 __spider.leds.set_led_off(__spider.leds.led_yellow);
                 return;
             }
 
             if (yellow_led && cmd_on) {
-                Serial.print("YELLOW ON. leg: ");
-                Serial.println(__spider.leds.led_yellow);
+                //Serial.print("YELLOW ON. leg: ");
+                //Serial.println(__spider.leds.led_yellow);
                 __spider.leds.set_led_on(__spider.leds.led_yellow);
                 return;
             }
             if (red_led && cmd_off) {
-                Serial.print("RED OFF. leg: ");
-                Serial.println(__spider.leds.led_red);
+                //Serial.print("RED OFF. leg: ");
+                //Serial.println(__spider.leds.led_red);
                 __spider.leds.set_led_off(__spider.leds.led_red);
                 return;
             }
 
             if (red_led && cmd_on) {
-                Serial.print("RED ON. leg: ");
-                Serial.println(__spider.leds.led_red);
+                //Serial.print("RED ON. leg: ");
+                //Serial.println(__spider.leds.led_red);
                 __spider.leds.set_led_on(__spider.leds.led_red);
                 return;
             }

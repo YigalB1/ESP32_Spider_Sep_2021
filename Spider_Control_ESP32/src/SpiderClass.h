@@ -18,8 +18,8 @@ struct Arduino_Servo_cmd_struct
 class Spider_Servo
     {
         //Adafruit_PWMServoDriver servos_control = Adafruit_PWMServoDriver();
-        int servoMIN = 150;
-        int servoMAX = 600;
+        int servoMIN = 200;
+        int servoMAX = 420;
                
         
         Arduino_Servo_cmd_struct Servo_cmd;
@@ -30,11 +30,20 @@ class Spider_Servo
         public:       
         void set_motor_to_angle (Adafruit_PWMServoDriver _servo_cntrl, Arduino_Servo_cmd_struct _servo_cmd) {
               Serial.print("in set_motor_to_angle. servo num: ");
-              Serial.println(_servo_cmd.servo_num);
-            // TBD: write values to servo
-            _servo_cntrl.setPWM(_servo_cmd.servo_num, 0, _servo_cmd.servo_angle);
+              Serial.print(_servo_cmd.servo_num);
 
-        }
+              int pulselength = map(_servo_cmd.servo_angle, 0, 180, servoMIN, servoMAX);
+            // TBD: write values to servo
+            _servo_cntrl.setPWM(_servo_cmd.servo_num, 0, pulselength);
+            _servo_cntrl.setPWM(0, 0, pulselength); // fpr debug, to remove
+            Serial.print("  Angle: ");
+            Serial.print(_servo_cmd.servo_angle);
+            Serial.print("   Pulse width: ");
+            Serial.println(pulselength);
+            delay(2000);
+
+
+        } // of set_motor_to_angle
 
     }; // of Spider_Servo class
 // **************************************************************
@@ -42,9 +51,7 @@ class Spider_Servo
     class Spider_Leg
     {
         public:
-        Spider_Servo motor[NUM_OF_SERVOS_IN_LEG];
-
-        
+        Spider_Servo motor[NUM_OF_SERVOS_IN_LEG];        
     }; // of Spider_Leg class
 // **************************************************************
     class Spider_Leds
@@ -55,17 +62,16 @@ class Spider_Servo
         int led_green;
         
         public: void set_led_on(int _led_num) {
-            Serial.print("Led ON, leg: ");
-            Serial.println(_led_num);
-
+            //Serial.print("Led ON, leg: ");
+            //Serial.println(_led_num);
             digitalWrite(_led_num, HIGH);
-        }
+        } // of set_led_on
 
         public: void set_led_off(int _led_num) {
-            Serial.print("Led OFF, leg: ");
-            Serial.println(_led_num);
+            //Serial.print("Led OFF, leg: ");
+            //Serial.println(_led_num);
             digitalWrite(_led_num, LOW);
-        }
+        } // of set_led_off
         
     }; // of Spider_Leds class
 // **************************************************************
